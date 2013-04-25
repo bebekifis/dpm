@@ -24,44 +24,71 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  * Author: Yinan Yu
- * Time: Mar/01/2013
+ * Time: 07/Mar/2013
  * Email: bebekifis@gmail.com
- * Filename: test.cpp
+ * Filename: tensor.cpp
  * Description: 
  */
-#include <time.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/time.h>
-#include <xmmintrin.h>
+#include "tensor.h"
 
-void test()
+Tensor::Tensor()
 {
-    const int length = 4;
-    float product[128*4]  __attribute__ ((aligned(16)));
-    __m128 x = _mm_set_ps(1.0f,2.0f,3.0f,4.0f);
-    __m128 y = _mm_set_ps(1.0f,2.0f,3.0f,4.0f);
-    __m128 z = _mm_add_ps(x,y);
-    _mm_store_ps(product,z);
-    fprintf(stderr, "%f %f %f %f\n", product[0], product[1], product[2], product[3]);
-}
-
-int main()
-{
-    test();
-    struct timeval tpstart, tpend;
-    gettimeofday(&tpstart, NULL);
-    float x = 0;
-    for (int i = 0; i < 100000000; i+=4)
-    {
-        x += 0.1;
-        x += 0.1;
-        x += 0.1;
-        x += 0.1;
-    }
-    gettimeofday(&tpend, NULL);
-    double timeuse=1000000*(tpend.tv_sec-tpstart.tv_sec) + (tpend.tv_usec-tpstart.tv_usec);
-    printf("%lf, %f\n", timeuse / 1000000.0, x);
 
 }
 
+Tensor::~Tensor()
+{
+
+}
+
+Tensor::Tensor(int, int *)
+{
+
+}
+
+Tensor::Tensor(float *, int, int *, int);
+{
+	
+}
+
+int Tensor::release()
+{
+	
+}
+
+int Tensor::resize(int dim, int * size)
+{
+}
+
+int Tensor::padding(int pady, int padx, int padc)
+{
+	int new_size[3] = {_size[0]+2*pady, _size[1]+2*padx, _size[2]+2*padc};
+	int new_total = new_size[0]*new_size[1]*new_size[2];
+	float * new_data = new float[new_total];
+	memset(new_data, 0, sizeof(float)*new_total);
+	for (int c = padc; c < _size[2] + padc; c++)
+	{
+		for (int x = padx; x < _size[1] + padx; x++)
+		{
+			// y = 0;
+			memcpy(&new_data[c*new_size[1]*new_size[0] + x*new_size[0] + pady],
+					&data[(c-padc)*_size[1]*_size[0] + (x-padx)*_size[0]], sizeof(float)*_size[0]);
+		}
+	}
+}
+
+const int * Tensor::getsize()
+{
+	return _size;
+}
+
+int Tensor::getsize(int idx)
+{
+	fassert(idx < _dim, "Tensor::getsize: idx(%d) < _dim(%d)\n", idx, _dim);
+	return _size[idx];
+}
+
+int Tensor::getdim()
+{
+	return _dim;
+}
